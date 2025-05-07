@@ -11,8 +11,8 @@ document.getElementById("generateRoomId").addEventListener("click", async (e) =>
   try {
     // Get the server URL dynamically
     const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-      ? 'https://localhost:3000' 
-      : `https://${window.location.hostname}:3000`;
+      ? 'http://localhost:3000' 
+      : `http://${window.location.hostname}:3000`;
 
     const response = await fetch(`${serverUrl}/create-room`, {
       method: "POST",
@@ -43,8 +43,8 @@ document.getElementById("joinRoomForm").addEventListener("submit", async (e) => 
   try {
     const serverUrl =
       window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-        ? "https://localhost:3000"
-        : `https://${window.location.hostname}:3000`;
+        ? "http://localhost:3000"
+        : `http://${window.location.hostname}:3000`;
 
     // Try to join the room
     const joinResponse = await fetch(`${serverUrl}/join-room`, {
