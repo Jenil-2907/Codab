@@ -10,6 +10,10 @@ import { initDrawing } from './modules/drawing.js';
 import { initChat, handleIncomingMessage } from './modules/chat.js';
 import { showTemporaryMessage, addUserBox, removeUserBox, showToast, showUserNotification, showUploadStatus, currentUsers } from './modules/ui.js';
 
+import * as Y from 'https://esm.sh/yjs@13.6.14';
+import { WebsocketProvider } from 'https://esm.sh/y-websocket@1.5.0?deps=yjs@13.6.14';
+import { MonacoBinding } from 'https://esm.sh/y-monaco@0.1.5?deps=yjs@13.6.14';
+
 // Get room ID and username from URL
 const urlParams = new URLSearchParams(window.location.search);
 const roomId = urlParams.get('roomId');
@@ -208,7 +212,7 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
         require(['vs/editor/editor.main'], function() {
             const editor = monaco.editor.create(editorDiv, {
-                value: initialContent || '',
+                value: '',
                 language: detectLanguageFromFile(fileName),
                 theme: 'vs-dark',
                 automaticLayout: true,
@@ -239,25 +243,38 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
             });
 
             editorDiv.editor = editor;
-            let isUpdatingContent = false;
-            let updateTimeout = null;
 
-            editor.onDidChangeModelContent((event) => {
-                if (isUpdatingContent) return;
-                const content = editor.getValue();
-                files[fileId].content = content;
-                if (updateTimeout) clearTimeout(updateTimeout);
-                updateTimeout = setTimeout(() => handleFileEdit(fileId, content), 50);
+            // Initialize Yjs bindings
+            const ydoc = new Y.Doc();
+            const yjsRoomName = `codab-${roomId}-${fileId}`;
+            const wsUrl = window.location.protocol === 'https:' 
+                ? `wss://${window.location.hostname}:3001`
+                : `ws://${window.location.hostname}:3001`;
+            
+            const provider = new WebsocketProvider(wsUrl, yjsRoomName, ydoc);
+            
+            provider.awareness.setLocalStateField('user', {
+                name: userName || 'Anonymous',
+                color: '#' + Math.floor(Math.random()*16777215).toString(16)
             });
 
-            editorDiv.updateContent = (content) => {
-                if (editor.getValue() === content) return;
-                isUpdatingContent = true;
-                const viewState = editor.saveViewState();
-                editor.setValue(content);
-                if (viewState) editor.restoreViewState(viewState);
-                isUpdatingContent = false;
-            };
+            const ytext = ydoc.getText('monaco');
+            const binding = new MonacoBinding(ytext, editor.getModel(), new Set([editor]), provider.awareness);
+
+            provider.on('synced', isSynced => {
+                if (isSynced && ytext.length === 0 && initialContent) {
+                    ytext.insert(0, initialContent);
+                }
+            });
+
+            ydoc.on('update', () => {
+                files[fileId].content = ytext.toString();
+            });
+
+            // Store references to clean up when closing the file
+            editorDiv.ydoc = ydoc;
+            editorDiv.provider = provider;
+            editorDiv.binding = binding;
         });
     }
     
@@ -298,6 +315,15 @@ function closeFile(fileId) {
         const storedFilename = files[fileId].path.split('/').pop();
         fetch(`/delete-file/${roomId}/${storedFilename}`, { method: 'DELETE' }).catch(console.error);
     }
+
+    // Clean up Yjs instances
+    const editorDiv = document.querySelector(`.editor-content[data-file-id="${fileId}"]`);
+    if (editorDiv) {
+        if (editorDiv.binding) editorDiv.binding.destroy();
+        if (editorDiv.provider) editorDiv.provider.destroy();
+        if (editorDiv.ydoc) editorDiv.ydoc.destroy();
+    }
+
     delete files[fileId];
     document.querySelectorAll(`[data-file-id="${fileId}"]`).forEach(el => el.remove());
     if (activeFileId === fileId) {
@@ -314,7 +340,11 @@ function switchToFile(fileId) {
     document.querySelectorAll('.editor-content').forEach(editorDiv => {
         const isActive = editorDiv.dataset.fileId === fileId;
         editorDiv.style.display = isActive ? 'block' : 'none';
-        if (isActive && editorDiv.editor) { editorDiv.editor.setValue(files[fileId].content); editorDiv.editor.layout(); }
+        if (isActive && editorDiv.editor) {
+            // Do NOT call editor.setValue() — Yjs manages the content via MonacoBinding.
+            // Calling setValue would wipe out the CRDT binding and break sync.
+            editorDiv.editor.layout();
+        }
     });
     activeFileId = fileId;
 }
@@ -326,14 +356,6 @@ function debounce(func, wait) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
     };
-}
-
-const debouncedFileEdit = debounce((fileId, content) => { socket.emit('file-update', { roomId, fileId, content }); }, 100);
-
-function handleFileEdit(fileId, content) {
-    if (!files[fileId]) return;
-    files[fileId].content = content;
-    debouncedFileEdit(fileId, content);
 }
 
 function downloadFile(fileId, fileName) {
@@ -378,26 +400,7 @@ socket.on('file-created', (data) => {
     }
 });
 
-socket.on('file-updated', (data) => {
-    if (!files[data.fileId]) return;
-    files[data.fileId].content = data.content;
-    const editorDiv = document.querySelector(`.editor-content[data-file-id="${data.fileId}"]`);
-    if (!editorDiv?.editor) return;
-    const editor = editorDiv.editor;
-    const model = editor.getModel();
-    if (!model) return;
-    if (model.getValue() === data.content) return;
-    
-    if (activeFileId === data.fileId) {
-        const position = editor.getPosition();
-        const selections = editor.getSelections();
-        editorDiv.updateContent(data.content);
-        if (position) editor.setPosition(position);
-        if (selections?.length) editor.setSelections(selections);
-    } else {
-        editorDiv.updateContent(data.content);
-    }
-});
+// socket.on('file-updated') is removed since we use yjs for file syncing
 
 socket.on('file-closed', (data) => {
     if (data.roomId !== roomId) return;

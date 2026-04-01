@@ -23,7 +23,9 @@
     "sharedb-string-binding": "^1.0.0",
     "socket.io": "^4.8.1",
     "websockets": "^0.2.0",
-    "ws": "^8.18.1"
+    "ws": "^8.18.1",
+    "y-websocket": "^1.5.0",
+    "yjs": "^13.6.30"
   },
   "devDependencies": {
     "webpack": "^5.98.0",

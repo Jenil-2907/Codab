@@ -140,19 +140,8 @@ module.exports = (io) => {
         });
 
         socket.on('file-update', (data) => {
-            try {
-                const room = rooms.get(data.roomId);
-                if (room && room.files && room.files[data.fileId]) {
-                    room.files[data.fileId].content = data.content;
-                    socket.to(data.roomId).emit('file-updated', {
-                        roomId: data.roomId,
-                        fileId: data.fileId,
-                        content: data.content
-                    });
-                }
-            } catch (error) {
-                console.error('Error in file-update:', error);
-            }
+            // Deprecated: File content synchronization is now handled natively via y-websocket CRDTs 
+            // over the /yjs WebSocket route. This socket.io event is no longer necessary.
         });
 
         socket.on('file-deleted', (data) => {
