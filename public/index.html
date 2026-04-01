@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codab - Collaborative Code Editor</title>
+    <link rel="stylesheet" href="css/Style.css">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
+</head>
+<body>
+    
+    <!-- Background Animated Blurs for Premium Feel -->
+    <div class="background-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Minimal Modern Navbar -->
+    <nav class="navbar">
+        <div class="logo">Codab.io</div>
+        <a href="https://github.com" target="_blank" class="nav-link">GitHub</a>
+    </nav>
+
+    <main class="landing-main">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1>Engineering knowledge.<br><span class="gradient-text">Right where you work.</span></h1>
+                <p class="hero-subtitle">The collaborative code editor built for lightning-fast pair programming, instant canvas sketching, and real-time execution.</p>
+                
+                <div class="feature-tags">
+                    <span class="tag">⚡ Real-time Sync</span>
+                    <span class="tag">🎨 Collaborative Canvas</span>
+                    <span class="tag">💻 Live Execution</span>
+                </div>
+            </div>
+            
+            <!-- Exact Logic Preserved Login Form Widget inside a sleek Glass panel -->
+            <div class="hero-widget glass-panel">
+                <h3>Enter a Strategy Room</h3>
+                <form id="joinRoomForm">
+                    <div class="input-group">
+                        <label for="roomId">Room ID</label>
+                        <input type="text" id="roomId" placeholder="Enter an existing ID">
+                    </div>
+                    <div class="input-group">
+                        <label for="userName">Username</label>
+                        <input type="text" id="userName" placeholder="Your display name" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="password">Session Password</label>
+                        <input type="password" id="password" placeholder="Secure room password" required>
+                    </div>
+                    
+                    <div id="error-message" class="error-msg"></div>
+                    
+                    <button type="submit" class="btn primary-btn">Join Strategy Room</button>
+                </form>
+                
+                <div class="divider"><span>OR</span></div>
+                
+                <button type="button" class="btn secondary-btn" id="generateRoomId">Generate New Room</button>
+            </div>
+        </section>
+
+        <!-- Bento-box Grid Features Section -->
+        <section class="bento-section">
+            <div class="bento-grid">
+                <div class="bento-card large glass-panel">
+                    <div class="bento-icon">💻</div>
+                    <h4>Write, Run & Compile.</h4>
+                    <p>Experience a full-fledged Monaco editor with sub-millisecond real-time websocket synchronization. Write Python, JavaScript, C++, and execute it live right inside the browser via the Piston engine.</p>
+                </div>
+                <div class="bento-card glass-panel">
+                    <div class="bento-icon">🎨</div>
+                    <h4>Infinite Canvas</h4>
+                    <p>Sketch your system architecture and user flows seamlessly while you code using the embedded, low-latency collaborative drawing board.</p>
+                </div>
+                <div class="bento-card glass-panel">
+                    <div class="bento-icon">💬</div>
+                    <h4>Live Integrated Chat</h4>
+                    <p>Communicate with your team instantaneously. The lightweight socket-driven chat guarantees no context switching.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- Preserved EXACT Script tag -->
+    <script src="js/Script.js"></script>
+</body>
+</html>
