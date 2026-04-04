@@ -1,7 +1,7 @@
 // Get the server URL dynamically
-const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:3000' 
-  : `http://${window.location.hostname}:3000`;
+const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:3000'
+    : `http://${window.location.hostname}:3000`;
 
 const socket = io(serverUrl);
 
@@ -78,7 +78,7 @@ runCodeBtn.addEventListener('click', async () => {
     const stdin = document.getElementById('custom-input')?.value || '';
 
     executionResult.innerHTML = '<div class="loading-spinner"></div> Running code...';
-    
+
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
@@ -100,11 +100,22 @@ runCodeBtn.addEventListener('click', async () => {
         pre.textContent = output;
         executionResult.innerHTML = '';
         executionResult.appendChild(pre);
+        switchToOutputTab();
     } catch (err) {
         if (err.name === 'AbortError') executionResult.textContent = 'Error: Code execution timed out after 10 seconds';
         else executionResult.textContent = 'Error: ' + (err.message || 'Failed to execute code');
+        switchToOutputTab();
     }
 });
+
+function switchToOutputTab() {
+    document.querySelectorAll('.io-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.io-panel').forEach(p => p.classList.remove('active'));
+    const outputTab = document.querySelector('.io-tab[data-target="output-panel"]');
+    const outputPanel = document.getElementById('output-panel');
+    if (outputTab) outputTab.classList.add('active');
+    if (outputPanel) outputPanel.classList.add('active');
+}
 
 function detectLanguageFromFile(fileName) {
     const ext = fileName.split('.').pop().toLowerCase();
@@ -115,7 +126,7 @@ function detectLanguageFromFile(fileName) {
 async function handleFileUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const allowedTypes = ['text/plain', 'application/javascript', 'text/html', 'text/css', 'application/json', 'text/markdown', 'text/x-python', 'text/x-java', 'text/x-c', 'text/x-c++', 'application/pdf', 'image/jpeg', 'image/png', 'application/octet-stream'];
     if (!allowedTypes.includes(file.type) && !file.name.match(/\.(js|html|css|json|md|py|java|c|cpp|h|hpp)$/)) {
         showUploadStatus(`Error: ${file.type} files are not allowed.`, 'error');
@@ -132,11 +143,11 @@ async function handleFileUpload(e) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('roomId', roomId);
-    
+
     try {
         const response = await fetch(`/upload-file?roomId=${roomId}`, { method: 'POST', body: formData });
         const data = await response.json();
-        
+
         if (!response.ok) throw new Error(data.error || 'Upload failed');
         if (data.success) {
             showUploadStatus(`Successfully uploaded ${file.name}`, 'success');
@@ -172,31 +183,31 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
     const tab = document.createElement('div');
     tab.className = 'editor-tab';
     tab.dataset.fileId = fileId;
-    
+
     const tabName = document.createElement('span');
     tabName.textContent = fileName;
     tab.appendChild(tabName);
-    
+
     const tabActions = document.createElement('div');
     tabActions.className = 'tab-actions';
-    
+
     const downloadBtn = document.createElement('span');
     downloadBtn.className = 'download-btn';
     downloadBtn.textContent = '⭳';
     downloadBtn.onclick = (e) => { e.stopPropagation(); downloadFile(fileId, fileName); };
     tabActions.appendChild(downloadBtn);
-    
+
     const closeBtn = document.createElement('span');
     closeBtn.className = 'tab-btn';
     closeBtn.innerHTML = '×';
     closeBtn.title = 'Close this file';
     closeBtn.addEventListener('click', (e) => { e.stopPropagation(); closeFile(fileId); });
     tabActions.appendChild(closeBtn);
-    
+
     tab.appendChild(tabActions);
     tab.addEventListener('click', () => switchToFile(fileId));
     editorTabs.appendChild(tab);
-    
+
     const editorDiv = document.createElement('div');
     editorDiv.className = 'editor-content';
     editorDiv.dataset.fileId = fileId;
@@ -209,8 +220,8 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
         binaryMessage.innerHTML = `<p>This is a binary file and cannot be displayed in the editor.</p><p>You can download it using the download button (⭳) in the tab.</p>`;
         editorDiv.appendChild(binaryMessage);
     } else {
-        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
-        require(['vs/editor/editor.main'], function() {
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
             const editor = monaco.editor.create(editorDiv, {
                 value: '',
                 language: detectLanguageFromFile(fileName),
@@ -247,15 +258,15 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
             // Initialize Yjs bindings
             const ydoc = new Y.Doc();
             const yjsRoomName = `codab-${roomId}-${fileId}`;
-            const wsUrl = window.location.protocol === 'https:' 
+            const wsUrl = window.location.protocol === 'https:'
                 ? `wss://${window.location.hostname}:3001`
                 : `ws://${window.location.hostname}:3001`;
-            
+
             const provider = new WebsocketProvider(wsUrl, yjsRoomName, ydoc);
-            
+
             provider.awareness.setLocalStateField('user', {
                 name: userName || 'Anonymous',
-                color: '#' + Math.floor(Math.random()*16777215).toString(16)
+                color: '#' + Math.floor(Math.random() * 16777215).toString(16)
             });
 
             const ytext = ydoc.getText('monaco');
@@ -277,33 +288,33 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
             editorDiv.binding = binding;
         });
     }
-    
+
     const fileItem = document.createElement('div');
     fileItem.className = 'file-item';
     fileItem.dataset.fileId = fileId;
-    
+
     const fileItemName = document.createElement('span');
     fileItemName.className = 'file-item-name';
     fileItemName.textContent = fileName;
     fileItem.appendChild(fileItemName);
-    
+
     const fileActions = document.createElement('div');
     fileActions.className = 'file-actions';
-    
+
     const downloadBtnFile = document.createElement('span');
     downloadBtnFile.className = 'file-btn download-btn';
     downloadBtnFile.innerHTML = '↓';
     downloadBtnFile.title = 'Download this file';
     downloadBtnFile.addEventListener('click', (e) => { e.stopPropagation(); downloadFile(fileId, fileName); });
     fileActions.appendChild(downloadBtnFile);
-    
+
     const closeBtnFile = document.createElement('span');
     closeBtnFile.className = 'file-btn';
     closeBtnFile.innerHTML = '×';
     closeBtnFile.title = 'Close this file';
     closeBtnFile.addEventListener('click', (e) => { e.stopPropagation(); closeFile(fileId); });
     fileActions.appendChild(closeBtnFile);
-    
+
     fileItem.appendChild(fileActions);
     fileItem.addEventListener('click', () => switchToFile(fileId));
     fileList.appendChild(fileItem);
@@ -394,18 +405,17 @@ socket.on('user-left', ({ userId, userName }) => {
 
 socket.on('file-created', (data) => {
     if (!files[data.fileId]) {
-      files[data.fileId] = { id: data.fileId, name: data.fileName, content: data.content || '', isUploadedFile: data.isUploadedFile || false, path: data.path || '' };
-      createFileUI(data.fileId, data.fileName, data.content, data.isUploadedFile);
-      switchToFile(data.fileId);
+        files[data.fileId] = { id: data.fileId, name: data.fileName, content: data.content || '', isUploadedFile: data.isUploadedFile || false, path: data.path || '' };
+        createFileUI(data.fileId, data.fileName, data.content, data.isUploadedFile);
+        switchToFile(data.fileId);
     }
 });
 
-// socket.on('file-updated') is removed since we use yjs for file syncing
 
 socket.on('file-closed', (data) => {
     if (data.roomId !== roomId) return;
     if (!files[data.fileId]) return;
-    
+
     if (files[data.fileId]?.isUploadedFile && files[data.fileId]?.path) {
         const storedFilename = files[data.fileId].path.split('/').pop();
         fetch(`/delete-file/${roomId}/${storedFilename}`, { method: 'DELETE' }).catch(console.error);
@@ -428,12 +438,12 @@ socket.on('room-state', (state) => {
     const usersList = document.getElementById('usersList');
     if (usersList) usersList.innerHTML = '';
     currentUsers.clear();
-    
+
     files = state.files;
     Object.values(files).forEach(file => {
         createFileUI(file.id, file.name, file.content, file.isUploadedFile);
     });
-    
+
     state.users.forEach(user => addUserBox(user.id, user.name));
     if (!activeFileId && Object.keys(files).length > 0) {
         switchToFile(Object.keys(files)[0]);

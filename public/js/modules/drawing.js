@@ -1,7 +1,7 @@
 import * as dom from '../utils/dom.js';
 
 let isDrawing = false;
-let currentColor = 'black';
+let currentColor = 'white';
 let currentPenSize = 2;
 let lastX = 0;
 let lastY = 0;
@@ -50,6 +50,32 @@ export function initDrawing(socket, roomId) {
                 dom.drawingCanvas.classList.remove('eraser-mode');
             }
         });
+    });
+
+    // Listen for remote drawing events
+    socket.on('drawing', (data) => {
+        drawLine(data.startX, data.startY, data.endX, data.endY, data.color, data.size, data.tool);
+    });
+
+    socket.on('load-strokes', (strokes) => {
+        if (strokes && strokes.length > 0) {
+            strokes.forEach(s => {
+                drawLine(s.startX, s.startY, s.endX, s.endY, s.color, s.size, s.tool);
+            });
+        }
+    });
+
+    socket.on('canvas-state', (data) => {
+        if (data.strokes && data.strokes.length > 0) {
+            data.strokes.forEach(s => {
+                drawLine(s.startX, s.startY, s.endX, s.endY, s.color, s.size, s.tool);
+            });
+        }
+    });
+
+    socket.on('clear-canvas', () => {
+        const ctx = dom.drawingCanvas.getContext('2d');
+        ctx.clearRect(0, 0, dom.drawingCanvas.width, dom.drawingCanvas.height);
     });
 }
 
@@ -108,6 +134,26 @@ function endDrawing() { isDrawing = false; }
 function getCanvasPosition(e) {
     const rect = dom.drawingCanvas.getBoundingClientRect();
     return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function drawLine(startX, startY, endX, endY, color, size, tool) {
+    const ctx = dom.drawingCanvas.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(endX, endY);
+
+    if (tool === 'eraser' || color === 'eraser') {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = color;
+    }
+
+    ctx.lineWidth = size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.stroke();
 }
 
 function clearCanvas() {

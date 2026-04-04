@@ -66,8 +66,13 @@ body {
 }
 
 @keyframes float {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(100px, 150px) scale(1.2); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(100px, 150px) scale(1.2);
+    }
 }
 
 /* --- Navigation --- */
@@ -95,7 +100,10 @@ body {
     font-weight: 500;
     transition: color 0.2s;
 }
-.nav-link:hover { color: var(--text-primary); }
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
 
 /* --- Layout Main --- */
 .landing-main {
@@ -179,16 +187,27 @@ h1 {
 .hero-widget::before {
     content: '';
     position: absolute;
-    top: 0; left: -100%; width: 50%; height: 100%;
-    background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.05), transparent);
     transform: skewX(-20deg);
     animation: gleam 8s infinite;
 }
 
 @keyframes gleam {
-    0% { left: -100%; }
-    20% { left: 200%; }
-    100% { left: 200%; }
+    0% {
+        left: -100%;
+    }
+
+    20% {
+        left: 200%;
+    }
+
+    100% {
+        left: 200%;
+    }
 }
 
 .hero-widget h3 {
@@ -278,14 +297,17 @@ input:focus {
 .divider::before {
     content: '';
     position: absolute;
-    top: 50%; left: 0; right: 0;
+    top: 50%;
+    left: 0;
+    right: 0;
     height: 1px;
     background: var(--glass-border);
     z-index: 1;
 }
 
 .divider span {
-    background: #0f1014; /* Match widget bg tone */
+    background: #0f1014;
+    /* Match widget bg tone */
     padding: 0 1rem;
     color: var(--text-muted);
     font-size: 0.8rem;
@@ -313,19 +335,19 @@ input:focus {
 
 .bento-card:hover {
     transform: translateY(-5px);
-    border-color: rgba(255,255,255,0.15);
+    border-color: rgba(255, 255, 255, 0.15);
 }
 
 .bento-card.large {
     grid-column: span 3;
     min-height: 350px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.05) 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.05) 100%);
 }
 
 .bento-icon {
     font-size: 2.5rem;
     margin-bottom: auto;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     width: 60px;
     height: 60px;
     display: flex;
@@ -341,7 +363,9 @@ input:focus {
     margin-bottom: 1rem;
 }
 
-.bento-card.large h4 { font-size: 2rem; }
+.bento-card.large h4 {
+    font-size: 2rem;
+}
 
 .bento-card p {
     color: var(--text-muted);
@@ -349,20 +373,78 @@ input:focus {
     max-width: 600px;
 }
 
-/* --- Responsive Adjustments --- */
+.coming-soon-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    color: #ffffff;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    animation: badgePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+.coming-soon-card {
+    position: relative;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+.coming-soon-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent);
+    pointer-events: none;
+}
+
+
 @media (max-width: 1024px) {
     .hero-section {
         flex-direction: column;
         text-align: center;
     }
-    
-    .hero-content { margin: 0 auto; }
-    .feature-tags { justify-content: center; }
-    .hero-widget { width: 100%; max-width: 500px; }
+
+    .hero-content {
+        margin: 0 auto;
+    }
+
+    .feature-tags {
+        justify-content: center;
+    }
+
+    .hero-widget {
+        width: 100%;
+        max-width: 500px;
+    }
 }
 
 @media (max-width: 768px) {
-    .bento-grid { grid-template-columns: 1fr; }
-    .bento-card.large { grid-column: span 1; }
-    h1 { font-size: 2.5rem; }
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bento-card.large {
+        grid-column: span 1;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
 }

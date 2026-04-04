@@ -1092,7 +1092,14 @@ body {
 
 .tool-btn.selected {
     background-color: var(--accent-color);
-    color: var(--bg-color);
+    color: #ffffff;
+    border-color: var(--accent-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.pen-type.selected {
+    background-color: var(--accent-color);
+    color: #ffffff;
     border-color: var(--accent-color);
     box-shadow: 0 2px 8px var(--shadow-color);
 }
