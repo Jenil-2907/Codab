@@ -12,11 +12,25 @@ const socketHandler = require('./server/sockets/socketHandler');
 const app = express();
 const server = http.createServer(app);
 
-// Socket.io setup
-const io = new Server(server, {
+const io = new Server({
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
+  }
+});
+io.attach(server);  // attaches HTTP polling transport
+
+// Yjs WebSocket setup (noServer mode)
+const wss = new WebSocket.Server({ noServer: true });
+wss.on('connection', setupWSConnection);
+
+server.on('upgrade', (request, socket, head) => {
+  const pathname = new URL(request.url, `http://${request.headers.host || 'localhost'}`).pathname;
+
+  if (pathname.startsWith('/yjs')) {
+    wss.handleUpgrade(request, socket, head, (ws) => {
+      wss.emit('connection', ws, request);
+    });
   }
 });
 
@@ -31,8 +45,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Inject io into request object for controllers to use
 app.use((req, res, next) => {
-    req.io = io;
-    next();
+  req.io = io;
+  next();
 });
 
 // Use API Routes
@@ -41,20 +55,7 @@ app.use('/', apiRoutes);
 // Initialize Socket event handlers
 socketHandler(io);
 
-// Yjs WebSocket setup on a separate port to avoid conflict with Socket.io
-const yjsServer = http.createServer((req, res) => {
-  res.writeHead(200, { 'Content-Type': 'text/plain' });
-  res.end('Yjs WebSocket Server');
-});
-const wss = new WebSocket.Server({ server: yjsServer });
-wss.on('connection', setupWSConnection);
-
-const YJS_PORT = process.env.YJS_PORT || 3001;
-yjsServer.listen(YJS_PORT, '0.0.0.0', () => {
-  console.log(`Yjs WebSocket server running on port ${YJS_PORT}`);
-});
-
-// Start the main server
+// Start the server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);

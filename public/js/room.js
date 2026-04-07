@@ -1,7 +1,5 @@
 // Get the server URL dynamically
-const serverUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : `http://${window.location.hostname}:3000`;
+const serverUrl = window.location.origin;
 
 const socket = io(serverUrl);
 
@@ -259,8 +257,8 @@ function createFileUI(fileId, fileName, initialContent = '', isUploadedFile = fa
             const ydoc = new Y.Doc();
             const yjsRoomName = `codab-${roomId}-${fileId}`;
             const wsUrl = window.location.protocol === 'https:'
-                ? `wss://${window.location.hostname}:3001`
-                : `ws://${window.location.hostname}:3001`;
+                ? `wss://${window.location.host}/yjs`
+                : `ws://${window.location.host}/yjs`;
 
             const provider = new WebsocketProvider(wsUrl, yjsRoomName, ydoc);
 
