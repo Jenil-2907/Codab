@@ -1,83 +1,151 @@
-# CODAB - Collab and Code ✨
+<div align="center">
 
-Welcome to **CODAB** — a lightweight, no-hassle collaborative coding platform!
+# Codab
 
-With CODAB, you can:
+### Real-time collaborative coding, reimagined.
 
-✅ **Create a room** and invite others by sharing the room ID  
-✅ **Join an existing room** with a room ID  
-✅ **Code together in real-time** — like Google Docs for code!  
-✅ **Upload & download files** created inside the room  
-✅ **No login, no signup** — just create, share, and start coding 🚀
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Socket.IO](https://img.shields.io/badge/Socket.IO-4.x-010101?logo=socket.io)](https://socket.io/)
 
----
+**Codab** is a lightweight, zero-signup collaborative platform that lets developers write, run, and sketch together in real time — right in the browser.
 
-## 🌟 Features
+[Getting Started](#-getting-started) · [Features](#-features) · [Architecture](#-architecture) · [Contributing](#-contributing)
 
-* 🏠 **Create or Join Rooms**
-  Instantly start a coding session by creating a room or joining with a room ID.
-
-* 👨‍💻 **Collaborative Code Editor**
-  Edit code live with others — see changes in real-time.
-
-* 💬 **Chat Box**
-  Send messages to collaborators directly inside the room.
-
-* ✏️ **Drawboard**
-  Collaboratively sketch ideas, diagrams, or notes on a shared whiteboard.
-
-* 📂 **File Upload & Download**
-  Upload files to the room and download collaborative work anytime.
-
-* ⚡ **No Sign-Up Required**
-  Skip the registration headache — just generate a room ID and go!
+</div>
 
 ---
 
-## 🚀 Getting Started
+##  Why Codab?
 
-1. **Clone the repo**
+Most collaborative tools force you through lengthy sign-up flows, heavy IDE installs, or clunky integrations. **Codab strips all of that away.** Generate a room, share the ID, and start coding together in seconds.
 
-   ```bash
-   git clone https://github.com/Jenil-2907/codab.git
-   cd codab
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Start the server**
-
-   ```bash
-   node server.js
-   ```
-
-4. **Open in browser**
-   Visit `http://localhost:3000`
+- **No accounts, no friction** — just a room ID and you're in.
+- **Real-time pair programming** powered by [Yjs](https://yjs.dev/) CRDT synchronization.
+- **Full-featured Monaco editor** with syntax highlighting, multi-language support, and live execution.
+- **Built-in tools** — chat, collaborative whiteboard, and file management — so you never have to context-switch.
 
 ---
 
-## 💻 Tech Stack
+##  Features
 
-* **Frontend:** HTML, CSS, JavaScript
-* **Backend:** Node.js, Express
-* **Real-time:** Socket.IO
-* **File handling:** Multer (or similar)
+| Feature | Description |
+|---|---|
+| **Collaborative Code Editor** | Monaco-powered editor with real-time cursor sync via Yjs WebSocket bindings. Write Python, JavaScript, C++, and more. |
+| **Live Code Execution** | Compile and run code directly in the browser with instant output. |
+| **Collaborative Canvas** | Shared drawing board for sketching architecture diagrams, flowcharts, and quick notes alongside your code. |
+| **Integrated Chat** | Low-latency, socket-driven messaging within each room — no tab-switching required. |
+| **File Upload & Download** | Upload reference files to the room or download collaborative work at any time. |
+| **Room Management** | Create password-protected rooms or join existing ones with a simple room ID. |
+| **Voice Chat** *(Coming Soon)* | Built-in voice channels for seamless verbal communication without leaving the workspace. |
+
+---
+
+## 🏗 Architecture
+
+```
+codab/
+├── Server.js                 # Express + Socket.IO + Yjs WebSocket server
+├── server/
+│   ├── controllers/
+│   │   ├── roomController.js # Room creation & join logic
+│   │   └── fileController.js # File upload/download handling (Multer)
+│   ├── routes/
+│   │   └── apiRoutes.js      # REST API route definitions
+│   ├── sockets/
+│   │   └── socketHandler.js  # Socket.IO event handlers (chat, draw, sync)
+│   └── store/                # In-memory room/session state
+├── public/
+│   ├── index.html            # Landing page
+│   ├── room.html             # Collaborative workspace
+│   ├── css/                  # Stylesheets
+│   └── js/
+│       ├── Script.js         # Landing page logic
+│       ├── room.js           # Room initialization & editor setup
+│       ├── modules/
+│       │   ├── chat.js       # Chat UI module
+│       │   ├── drawing.js    # Canvas drawing module
+│       │   └── ui.js         # UI state management
+│       └── utils/            # Shared utility functions
+└── uploads/                  # Temporary file storage (gitignored)
+```
+
+**Key design decisions:**
+
+- **Yjs + WebSocket** for conflict-free real-time document synchronization (CRDT-based), enabling true multi-cursor editing.
+- **Socket.IO** handles all non-document events — chat messages, drawing strokes, room presence, and file notifications.
+- **Modular frontend** — each concern (chat, drawing, UI) is isolated into its own ES module for maintainability.
 
 ---
 
-## 📦 Features Coming Soon
+##  Tech Stack
 
-* Trying to use ShareDB for giving each user a different cursor so everyone can type at same time in same file
+| Layer | Technology |
+|---|---|
+| **Runtime** | Node.js |
+| **Server** | Express 4 |
+| **Real-time Sync** | Yjs + y-websocket (CRDT) |
+| **Events & Messaging** | Socket.IO 4 |
+| **Code Editor** | Monaco Editor |
+| **File Uploads** | Multer |
+| **WebSocket** | ws |
+| **Bundler** | Webpack 5 *(dev)* |
 
 ---
 
-## 🤝 Contributing
+## 📦 Getting Started
 
-Pull requests are welcome!
-Feel free to open issues or suggest features.
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) v18 or higher
+- npm (included with Node.js)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/Jenil-2907/Codab.git
+cd codab
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+```
+
+The application will be available at **`http://localhost:3000`**.
+
+### Quick Start
+
+1. Open the app and click **Generate New Room** to create a session.
+2. Share the **Room ID** and **password** with collaborators.
+3. Start coding, chatting, and sketching together in real time.
 
 ---
+
+##  Contributing
+
+Contributions are welcome! Whether it's a bug fix, a new feature, or documentation improvements — all PRs are appreciated.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m "Add your feature"`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+Please open an [issue](https://github.com/Jenil-2907/Codab/issues) first for major changes to discuss the approach.
+
+---
+
+##  License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+Built with ☕ and WebSockets by [Jenil](https://github.com/Jenil-2907)
+
+</div>
